@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Chatbot</string>
+    <string name="enter_prompt_label">Text prompt</string>
+    <string name="prompt_hint">How can I help you today?</string>
+    <string name="prompt_hints">Need Inspiration? Try this prompts:\n* Write a poem about a lone astronaut exploring a distant planet.\n* Generate a code snippet in Python that sorts a list of strings based on their length.\n* Explain the concept of entropy in a way that a high school student can understand.\n* Describe the emotions and symbolism in this painting (provide image).\n* Translate this poem into Spanish while maintaining the original rhyme scheme and rhythm (provide poem text).\n* Help me come up with a creative idea for a birthday gift for my friend.\n</string>
+</resources>
