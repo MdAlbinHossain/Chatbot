@@ -3,6 +3,8 @@
 
 **An Android app that harnesses the power of Google AI for engaging and informative responses.**
 
+[Download Now](./Chatbot.apk)
+
 ## Features
 
 - **Interactive Chatbot:** Powered by Google Gemini Pro, the chatbot engages in natural and informative conversations, answering your questions and following your requests thoughtfully.
