@@ -1,13 +1,14 @@
-package bd.com.albin.chatbot.data.repository
+package bd.com.albin.chatbot.data.service.impl
 
 import android.graphics.Bitmap
+import bd.com.albin.chatbot.data.service.AiService
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import javax.inject.Inject
 
-class GenerativeContentRepositoryImpl @Inject constructor(
+class AiServiceImpl @Inject constructor(
     private val geminiPro: GenerativeModel, private val geminiProVision: GenerativeModel
-) : GenerativeContentRepository {
+) : AiService {
     override suspend fun generateContent(prompt: String): String? {
         val response = geminiPro.generateContent(prompt)
         return response.text

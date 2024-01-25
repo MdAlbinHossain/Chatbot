@@ -1,8 +1,8 @@
 package bd.com.albin.chatbot.di
 
 import bd.com.albin.chatbot.BuildConfig
-import bd.com.albin.chatbot.data.repository.GenerativeContentRepository
-import bd.com.albin.chatbot.data.repository.GenerativeContentRepositoryImpl
+import bd.com.albin.chatbot.data.service.AiService
+import bd.com.albin.chatbot.data.service.impl.AiServiceImpl
 import com.google.ai.client.generativeai.GenerativeModel
 import dagger.Module
 import dagger.Provides
@@ -15,14 +15,14 @@ import javax.inject.Singleton
 object AppModule {
     @Singleton
     @Provides
-    fun providesGenerativeContentRepository(): GenerativeContentRepository {
+    fun providesGenerativeContentRepository(): AiService {
         val geminiPro = GenerativeModel(
             modelName = "gemini-pro", apiKey = BuildConfig.apiKey
         )
         val geminiProVision = GenerativeModel(
             modelName = "gemini-pro-vision", apiKey = BuildConfig.apiKey
         )
-        return GenerativeContentRepositoryImpl(
+        return AiServiceImpl(
             geminiPro = geminiPro, geminiProVision = geminiProVision
         )
     }

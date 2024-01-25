@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Send
@@ -65,23 +66,23 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal fun ChatRoute() {
+internal fun ChatRoute(
+    viewModel: ChatViewModel = hiltViewModel(), openScreen: (String) -> Unit = {}
+) {
 
-    val chatViewModel: ChatViewModel = hiltViewModel()
-
-    val chatUiState by chatViewModel.uiState.collectAsStateWithLifecycle()
+    val chatUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    ChatScreen(chatUiState, onSendClicked = { inputText, selectedImages ->
+    ChatScreen(chatUiState,   onSendClicked = { inputText, selectedImages ->
         keyboardController?.hide()
         coroutineScope.launch {
             val bitmaps = selectedImages.map { imageUriToBitmap(context, it) }
-            chatViewModel.generateResponse(inputText, bitmaps)
+            viewModel.generateResponse(inputText, bitmaps, selectedImages.map { it.toString() })
         }
-    })
+    }, onSettingsClick = { viewModel.onSettingsClick(openScreen) })
 }
 
 object CustomUriStateSaver : Saver<MutableList<Uri>, List<String>> {
@@ -99,7 +100,8 @@ object CustomUriStateSaver : Saver<MutableList<Uri>, List<String>> {
 @Composable
 fun ChatScreen(
     uiState: ChatUiState = ChatUiState.Initial,
-    onSendClicked: (String, List<Uri>) -> Unit = { _: String, _: List<Uri> -> }
+    onSendClicked: (String, List<Uri>) -> Unit = { _: String, _: List<Uri> -> },
+    onSettingsClick: () -> Unit = {}
 ) {
     var prompt by rememberSaveable { mutableStateOf("") }
     val imageUris = rememberSaveable(saver = CustomUriStateSaver) {
@@ -113,7 +115,12 @@ fun ChatScreen(
         }
 
     Scaffold(topBar = {
-        CenterAlignedTopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) })
+        CenterAlignedTopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) },
+            actions = {
+                IconButton(onClick = onSettingsClick) {
+                    Icon(Icons.Default.Settings, contentDescription = null)
+                }
+            })
     }, bottomBar = {
         Column(
             modifier = Modifier
@@ -180,12 +187,15 @@ fun ChatScreen(
                         onSendClicked(
                             prompt, imageUris
                         )
+                        imageUris.clear()
                     }),
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(
                     onClick = {
                         onSendClicked(prompt, imageUris)
+                        imageUris.clear()
+                        prompt=""
                     },
                     enabled = prompt.isNotBlank() || imageUris.isNotEmpty(),
                     modifier = Modifier.align(Alignment.CenterVertically)
@@ -210,30 +220,29 @@ fun ChatScreen(
                     )
                 }
 
-                is ChatUiState.Loading -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(all = 8.dp)
-                            .align(Alignment.CenterHorizontally)
-                    ) {
-                        CircularProgressIndicator()
+                    is ChatUiState.Loading -> {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(all = 8.dp)
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
-                }
 
-                is ChatUiState.Success -> {
-                    Row {
-                        Icon(
-                            Icons.Default.SmartToy, contentDescription = "SmartToy Icon"
-                        )
-                        Text(
-                            text = uiState.outputText,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
+                    is ChatUiState.Success -> {
+                        Row {
+                            Icon(
+                                Icons.Default.SmartToy, contentDescription = "SmartToy Icon"
+                            )
+                            Text(
+                                text = uiState.outputText,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                        }
                     }
-                }
 
                 is ChatUiState.Error -> {
                     Text(
