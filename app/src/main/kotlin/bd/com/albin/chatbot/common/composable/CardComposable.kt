@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import bd.com.albin.chatbot.common.ext.dropdownSelector
 
 @Composable
 fun DangerousCardEditor(
@@ -71,15 +70,3 @@ private fun CardEditor(
   }
 }
 
-@Composable
-fun CardSelector(
-  @StringRes label: Int,
-  options: List<String>,
-  selection: String,
-  modifier: Modifier,
-  onNewValue: (String) -> Unit
-) {
-  Card( modifier = modifier) {
-    DropdownSelector(label, options, selection, Modifier.dropdownSelector(), onNewValue)
-  }
-}

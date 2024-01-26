@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,19 +15,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,6 +41,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -50,6 +56,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -61,6 +68,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import bd.com.albin.chatbot.R
 import bd.com.albin.chatbot.common.utils.imageUriToBitmap
+import bd.com.albin.chatbot.data.model.Message
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 
@@ -71,16 +79,20 @@ internal fun ChatRoute(
 ) {
 
     val chatUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val messages by viewModel.messages.collectAsStateWithLifecycle()
 
+    val scrollState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    ChatScreen(chatUiState,   onSendClicked = { inputText, selectedImages ->
+    ChatScreen(messages, chatUiState, scrollState, onSendClicked = { inputText, selectedImages ->
         keyboardController?.hide()
         coroutineScope.launch {
             val bitmaps = selectedImages.map { imageUriToBitmap(context, it) }
-            viewModel.generateResponse(inputText, bitmaps, selectedImages.map { it.toString() })
+            viewModel.generateResponse(inputText, bitmaps, selectedImages.map { it.toString() }) {
+                scrollState.scrollToItem(0)
+            }
         }
     }, onSettingsClick = { viewModel.onSettingsClick(openScreen) })
 }
@@ -96,13 +108,16 @@ object CustomUriStateSaver : Saver<MutableList<Uri>, List<String>> {
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ChatScreen(
+    messages: List<Message> = emptyList(),
     uiState: ChatUiState = ChatUiState.Initial,
+    scrollState: LazyListState = rememberLazyListState(),
     onSendClicked: (String, List<Uri>) -> Unit = { _: String, _: List<Uri> -> },
     onSettingsClick: () -> Unit = {}
 ) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     var prompt by rememberSaveable { mutableStateOf("") }
     val imageUris = rememberSaveable(saver = CustomUriStateSaver) {
         mutableStateListOf()
@@ -114,19 +129,21 @@ fun ChatScreen(
             }
         }
 
-    Scaffold(topBar = {
-        CenterAlignedTopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) },
+    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(text = stringResource(id = R.string.app_name))
+            },
+            scrollBehavior = scrollBehavior,
             actions = {
                 IconButton(onClick = onSettingsClick) {
                     Icon(Icons.Default.Settings, contentDescription = null)
                 }
-            })
+            },
+        )
     }, bottomBar = {
-        Column(
-            modifier = Modifier
-                .padding()
-                .background(color = MaterialTheme.colorScheme.surfaceVariant)
-                .padding(8.dp)
+        Card(
+            modifier = Modifier.padding(8.dp)
         ) {
             AnimatedVisibility(visible = imageUris.isNotEmpty()) {
                 LazyRow(
@@ -188,6 +205,7 @@ fun ChatScreen(
                             prompt, imageUris
                         )
                         imageUris.clear()
+                        prompt = ""
                     }),
                     modifier = Modifier.weight(1f)
                 )
@@ -195,9 +213,9 @@ fun ChatScreen(
                     onClick = {
                         onSendClicked(prompt, imageUris)
                         imageUris.clear()
-                        prompt=""
+                        prompt = ""
                     },
-                    enabled = prompt.isNotBlank() || imageUris.isNotEmpty(),
+                    enabled = (prompt.isNotBlank() || imageUris.isNotEmpty()) && (uiState != ChatUiState.Loading),
                     modifier = Modifier.align(Alignment.CenterVertically)
                 ) {
                     Icon(imageVector = Icons.Outlined.Send, contentDescription = null)
@@ -205,50 +223,63 @@ fun ChatScreen(
             }
         }
     }) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(all = 16.dp)
-                .verticalScroll(rememberScrollState()),
-        ) {
-            when (uiState) {
-                is ChatUiState.Initial -> {
-                    Text(
-                        text = stringResource(R.string.prompt_hints),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-
-                    is ChatUiState.Loading -> {
+        SelectionContainer {
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(end = 8.dp),
+            ) {
+                LazyColumn(
+                    reverseLayout = true,
+                    state = scrollState,
+                    verticalArrangement = Arrangement.spacedBy(32.dp),
+                ) {
+                    item {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(all = 8.dp)
+                                .animateItemPlacement()
+                                .fillMaxWidth()
                         ) {
-                            CircularProgressIndicator()
+                            if (uiState is ChatUiState.Loading) {
+                                CircularProgressIndicator(modifier = Modifier.padding(8.dp))
+                            } else if (uiState is ChatUiState.Error) {
+                                Text(
+                                    text = uiState.errorMessage,
+                                    color = Color.Red,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
                         }
                     }
-
-                    is ChatUiState.Success -> {
-                        Row {
-                            Icon(
-                                Icons.Default.SmartToy, contentDescription = "SmartToy Icon"
-                            )
-                            Text(
-                                text = uiState.outputText,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(horizontal = 8.dp)
-                            )
+                    items(items = messages, key = { it.id }) {
+                        Column(modifier = Modifier.animateItemPlacement()) {
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    shape = RoundedCornerShape(bottomStart = 8.dp, topEnd = 8.dp)
+                                ) {
+                                    Text(text = it.prompt, modifier = Modifier.padding(8.dp))
+                                }
+                            }
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.SmartToy,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                                Text(text = it.response, modifier = Modifier.padding(8.dp))
+                            }
                         }
                     }
-
-                is ChatUiState.Error -> {
-                    Text(
-                        text = uiState.errorMessage,
-                        color = Color.Red
-                    )
                 }
             }
         }

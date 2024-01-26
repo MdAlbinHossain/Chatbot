@@ -17,8 +17,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,21 +31,16 @@ class LoginViewModel @Inject constructor(
     private val password
         get() = uiState.value.password
 
-    private val _signInState = Channel<SignInState>()
-    val signInState = _signInState.receiveAsFlow()
-
     private val _googleState = mutableStateOf(GoogleSignInState())
     val googleState: State<GoogleSignInState> = _googleState
 
-
-    fun onSignUpClick(openScreen: (String) -> Unit) = openScreen(SIGN_UP_SCREEN)
 
     fun onGoogleSignIn(activityResult: ActivityResult, openAndPopUp: (String, String) -> Unit) =
         launchCatching {
             val account = GoogleSignIn.getSignedInAccountFromIntent(activityResult.data)
             val googleResult = account.getResult(ApiException::class.java)
             val credentials = GoogleAuthProvider.getCredential(googleResult.idToken, null)
-            accountService.googleSignIn(credentials).collect { result ->
+            accountService.signInWithGoogle(credentials).collect { result ->
                 when (result) {
                     is Resource.Success -> {
                         _googleState.value = GoogleSignInState(success = result.data)
@@ -64,6 +57,8 @@ class LoginViewModel @Inject constructor(
                 }
             }
         }
+
+    fun onSignUpClick(openScreen: (String) -> Unit) = openScreen(SIGN_UP_SCREEN)
 
     fun onEmailChange(newValue: String) {
         uiState.value = uiState.value.copy(email = newValue)

@@ -3,11 +3,11 @@ package bd.com.albin.chatbot.data.service.impl
 import bd.com.albin.chatbot.data.Resource
 import bd.com.albin.chatbot.data.model.User
 import bd.com.albin.chatbot.data.service.AccountService
-import bd.com.albin.chatbot.data.service.trace
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.perf.metrics.AddTrace
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -24,28 +24,18 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
     override val hasUser: Boolean
         get() = auth.currentUser != null
 
-    override fun loginUser(email: String, password: String): Flow<Resource<AuthResult>> {
-        return flow {
-            emit(Resource.Loading())
-            val result = auth.signInWithEmailAndPassword(email, password).await()
-            emit(Resource.Success(result))
-        }.catch {
-            emit(Resource.Error(it.message.toString()))
+    override val currentUser: Flow<User>
+        get() = callbackFlow {
+            val listener = FirebaseAuth.AuthStateListener { auth ->
+                this.trySend(auth.currentUser?.let { user ->
+                    User(user.uid, user.isAnonymous, user.displayName, user.photoUrl)
+                } ?: User())
+            }
+            auth.addAuthStateListener(listener)
+            awaitClose { auth.removeAuthStateListener(listener) }
         }
 
-    }
-
-    override fun registerUser(email: String, password: String): Flow<Resource<AuthResult>> {
-        return flow {
-            emit(Resource.Loading())
-            val result = auth.createUserWithEmailAndPassword(email, password).await()
-            emit(Resource.Success(result))
-        }.catch {
-            emit(Resource.Error(it.message.toString()))
-        }
-    }
-
-    override fun googleSignIn(credential: AuthCredential): Flow<Resource<AuthResult>> {
+    override fun signInWithGoogle(credential: AuthCredential): Flow<Resource<AuthResult>> {
         return flow {
             emit(Resource.Loading())
             val result = auth.signInWithCredential(credential).await()
@@ -54,19 +44,6 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
             emit(Resource.Error(it.message.toString()))
         }
     }
-
-    override val currentUser: Flow<User>
-        get() = callbackFlow {
-            val listener = FirebaseAuth.AuthStateListener { auth ->
-                this.trySend(auth.currentUser?.let {user->
-                    User(
-                        user.uid, user.isAnonymous, user.displayName, user.photoUrl
-                    )
-                } ?: User())
-            }
-            auth.addAuthStateListener(listener)
-            awaitClose { auth.removeAuthStateListener(listener) }
-        }
 
     override suspend fun authenticate(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()
@@ -80,13 +57,9 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
         auth.signInAnonymously().await()
     }
 
-    override suspend fun linkAccount(email: String, password: String): Unit =
-        trace(LINK_ACCOUNT_TRACE) {
-            val credential = EmailAuthProvider.getCredential(email, password)
-            auth.currentUser!!.linkWithCredential(credential).await()
-        }
-
-    override suspend fun linkAccount(credential: AuthCredential): Unit = trace(LINK_ACCOUNT_TRACE) {
+    @AddTrace(name = LINK_ACCOUNT_TRACE, enabled = true)
+    override suspend fun linkAccount(email: String, password: String) {
+        val credential = EmailAuthProvider.getCredential(email, password)
         auth.currentUser!!.linkWithCredential(credential).await()
     }
 
@@ -100,7 +73,6 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
         }
         auth.signOut()
 
-        // Sign the user back in anonymously.
         createAnonymousAccount()
     }
 

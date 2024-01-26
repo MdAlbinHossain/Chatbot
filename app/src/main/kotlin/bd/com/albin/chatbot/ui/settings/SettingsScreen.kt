@@ -13,10 +13,11 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import bd.com.albin.chatbot.R
 import bd.com.albin.chatbot.common.composable.BasicToolbar
 import bd.com.albin.chatbot.common.composable.DangerousCardEditor
@@ -45,7 +47,7 @@ fun SettingsScreen(
     openScreen: (String) -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState(initial = SettingsUiState(false))
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle(SettingsUiState(false))
 
     SettingsScreenContent(uiState = uiState,
         onLoginClick = { viewModel.onLoginClick(openScreen) },
@@ -82,6 +84,7 @@ fun SettingsScreenContent(
                 modifier = Modifier.padding(16.dp)
             )
             Spacer(modifier = Modifier.spacer())
+
             RegularCardEditor(R.string.sign_in, Icons.Default.Login, "", Modifier.card()) {
                 onLoginClick()
             }
@@ -90,6 +93,14 @@ fun SettingsScreenContent(
                 R.string.create_account, Icons.Default.AccountBox, "", Modifier.card()
             ) {
                 onSignUpClick()
+            }
+
+            OutlinedButton(
+                onClick = onDeleteMyAccountClick,
+                colors = ButtonDefaults.outlinedButtonColors(),
+                modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.clear_history))
             }
         } else {
             uiState.photoUrl?.let {
@@ -155,7 +166,7 @@ private fun DeleteMyAccountCard(deleteMyAccount: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
-    val uiState = SettingsUiState(isAnonymousAccount = false)
+    val uiState = SettingsUiState(isAnonymousAccount = true)
 
     ChatbotTheme {
         SettingsScreenContent(uiState = uiState,

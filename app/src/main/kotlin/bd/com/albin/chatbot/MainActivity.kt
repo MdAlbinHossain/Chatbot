@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import bd.com.albin.chatbot.ui.ChatApp
 import bd.com.albin.chatbot.ui.theme.ChatbotTheme
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var analytics: FirebaseAnalytics
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             ChatbotTheme {

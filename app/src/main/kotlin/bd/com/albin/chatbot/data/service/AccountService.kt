@@ -12,17 +12,11 @@ interface AccountService {
 
     val currentUser: Flow<User>
 
-    fun loginUser(email: String, password: String): Flow<Resource<AuthResult>>
-    fun registerUser(email: String, password: String): Flow<Resource<AuthResult>>
-
-    fun googleSignIn(credential: AuthCredential): Flow<Resource<AuthResult>>
-
-
+    fun signInWithGoogle(credential: AuthCredential): Flow<Resource<AuthResult>>
     suspend fun authenticate(email: String, password: String)
     suspend fun sendRecoveryEmail(email: String)
     suspend fun createAnonymousAccount()
     suspend fun linkAccount(email: String, password: String)
-    suspend fun linkAccount(credential: AuthCredential)
     suspend fun deleteAccount()
     suspend fun signOut()
 }

@@ -76,7 +76,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.generativeai)
-    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -99,20 +98,20 @@ dependencies {
     ksp(libs.hilt.compiler)
     ksp(libs.hilt.ext.compiler)
 
+//
+//    implementation(libs.room.ktx)
+//    implementation(libs.room.runtime)
+//    ksp(libs.room.compiler)
 
-    implementation(libs.room.ktx)
-    implementation(libs.room.runtime)
-    ksp(libs.room.compiler)
-
-    implementation(libs.kotlinx.datetime)
-    implementation(libs.kotlinx.serialization.json)
+//    implementation(libs.kotlinx.datetime)
+//    implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.coil.kt.compose)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
-    implementation(libs.firebase.database)
+//    implementation(libs.firebase.database)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.cloud.messaging)

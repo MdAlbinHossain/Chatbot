@@ -55,7 +55,7 @@ fun SplashScreenContent(
                 Text(text = stringResource(id = R.string.try_again))
             }
         } else {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.onBackground)
+            CircularProgressIndicator()
         }
     }
 

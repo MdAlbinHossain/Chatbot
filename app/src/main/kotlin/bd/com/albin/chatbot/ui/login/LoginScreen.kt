@@ -19,13 +19,13 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,7 +55,6 @@ fun LoginScreen(
     val googleSignInState = viewModel.googleState.value
 
     val context = LocalContext.current
-    val state = viewModel.signInState.collectAsState(initial = null)
 
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail()
         .requestProfile().requestIdToken(BuildConfig.webClientId).build()
@@ -64,20 +63,6 @@ fun LoginScreen(
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) {
             viewModel.onGoogleSignIn(it, openAndPopUp)
         }
-
-    LaunchedEffect(key1 = state.value?.isSuccess) {
-        if (state.value?.isSuccess?.isNotEmpty() == true) {
-            val success = state.value?.isSuccess
-            Toast.makeText(context, "$success", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    LaunchedEffect(key1 = state.value?.isError) {
-        if (state.value?.isError?.isNotEmpty() == true) {
-            val error = state.value?.isError
-            Toast.makeText(context, "$error", Toast.LENGTH_LONG).show()
-        }
-    }
 
     LaunchedEffect(key1 = googleSignInState.success) {
         if (googleSignInState.success != null) {
@@ -131,7 +116,7 @@ fun LoginScreenContent(
 
         Spacer(modifier = Modifier.spacer())
 
-        Text(text = "Or")
+        Text(text = stringResource(R.string.or))
 
         Spacer(modifier = Modifier.spacer())
 

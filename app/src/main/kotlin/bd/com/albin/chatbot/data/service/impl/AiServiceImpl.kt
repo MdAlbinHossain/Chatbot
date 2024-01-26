@@ -4,16 +4,20 @@ import android.graphics.Bitmap
 import bd.com.albin.chatbot.data.service.AiService
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
+import com.google.firebase.perf.metrics.AddTrace
 import javax.inject.Inject
 
 class AiServiceImpl @Inject constructor(
     private val geminiPro: GenerativeModel, private val geminiProVision: GenerativeModel
 ) : AiService {
+    @AddTrace(name = "generateContent", enabled = true)
     override suspend fun generateContent(prompt: String): String? {
         val response = geminiPro.generateContent(prompt)
         return response.text
     }
 
+
+    @AddTrace(name = "generateContentWithImage", enabled = true)
     override suspend fun generateContent(prompt: String, images: List<Bitmap>): String? {
         val inputContent = content {
             images.onEach {

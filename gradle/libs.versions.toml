@@ -1,7 +1,7 @@
 [versions]
 compileSdk = "34"
 kotlinxSerializationJsonVersion = "1.5.1"
-materialAndroid = "1.5.4"
+materialAndroid = "1.6.0"
 minSdk = "28"
 pagingCompose = "3.3.0-alpha02"
 pagingRuntimeKtx = "3.2.1"
@@ -50,7 +50,6 @@ firebaseBom = "32.7.1"
 firebaseCrashlyticsPlugin = "2.9.9"
 firebasePerfPlugin = "1.4.2"
 gmsPlugin = "4.4.0"
-material = "1.11.0"
 
 
 [libraries]
@@ -144,7 +143,6 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
 work-testing = { group = "androidx.work", name = "work-testing", version = "2.9.0" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
