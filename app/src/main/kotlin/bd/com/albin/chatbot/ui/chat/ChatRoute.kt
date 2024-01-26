@@ -204,7 +204,6 @@ fun ChatScreen(
                         onSendClicked(
                             prompt, imageUris
                         )
-                        imageUris.clear()
                         prompt = ""
                     }),
                     modifier = Modifier.weight(1f)
@@ -212,7 +211,6 @@ fun ChatScreen(
                 IconButton(
                     onClick = {
                         onSendClicked(prompt, imageUris)
-                        imageUris.clear()
                         prompt = ""
                     },
                     enabled = (prompt.isNotBlank() || imageUris.isNotEmpty()) && (uiState != ChatUiState.Loading),
