@@ -1,55 +1,55 @@
 [versions]
 compileSdk = "34"
 kotlinxSerializationJsonVersion = "1.5.1"
-materialAndroid = "1.6.0"
+materialAndroid = "1.6.8"
 minSdk = "28"
-pagingCompose = "3.3.0-alpha02"
-pagingRuntimeKtx = "3.2.1"
+pagingCompose = "3.3.0"
+pagingRuntimeKtx = "3.3.0"
 targetSdk = "34"
 compose-compiler = "1.5.8"
-agp = "8.4.0-alpha06"
-kotlin = "1.9.22"
-coreKtx = "1.12.0"
+agp = "8.5.1"
+kotlin = "2.0.0"
+coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
 kotlinxCoroutinesPlayServices = "1.7.3"
-lifecycleRuntimeKtx = "2.7.0"
-activityCompose = "1.8.2"
-composeBom = "2023.10.01"
+lifecycleRuntimeKtx = "2.8.3"
+activityCompose = "1.9.0"
+composeBom = "2024.06.00"
 
-generativeai = "0.1.2"
+generativeai = "0.9.0"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 
 accompanist = "0.32.0"
-androidxAppCompat = "1.6.1"
+androidxAppCompat = "1.7.0"
 androidxCoreSplashscreen = "1.0.1"
-androidxDataStore = "1.0.0"
-androidxHiltNavigationCompose = "1.1.0"
-androidxNavigation = "2.7.6"
+androidxDataStore = "1.1.1"
+androidxHiltNavigationCompose = "1.2.0"
+androidxNavigation = "2.7.7"
 androidxWork = "2.9.0"
 coil = "2.4.0"
 
-hilt = "2.48.1"
-hiltExt = "1.1.0"
+hilt = "2.49"
+hiltExt = "1.2.0"
 kotlinxCoroutines = "1.7.3"
-kotlinxDatetime = "0.4.1"
-kotlinxSerializationJson = "1.6.0"
-ksp = "1.9.22-1.0.16"
+kotlinxDatetime = "0.6.0"
+kotlinxSerializationJson = "1.6.3"
+ksp = "2.0.0-1.0.23"
 okhttp = "4.12.0"
 preferenceKtx = "1.2.1"
-playServicesAds="22.6.0"
-playServicesLocation="21.1.0"
-playServicesAuth="20.7.0"
+playServicesAds="23.2.0"
+playServicesLocation="21.3.0"
+playServicesAuth="21.2.0"
 retrofit = "2.9.0"
 retrofitKotlinxSerializationJson = "1.0.0"
 room = "2.6.1"
 uiTextGoogleFonts = "1.5.4"
 
-firebaseBom = "32.7.1"
-firebaseCrashlyticsPlugin = "2.9.9"
+firebaseBom = "33.1.2"
+firebaseCrashlyticsPlugin = "3.0.2"
 firebasePerfPlugin = "1.4.2"
-gmsPlugin = "4.4.0"
+gmsPlugin = "4.4.2"
 
 
 [libraries]
@@ -142,11 +142,11 @@ firebase-performance-gradlePlugin = { group = "com.google.firebase", name = "per
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
-work-testing = { group = "androidx.work", name = "work-testing", version = "2.9.0" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
