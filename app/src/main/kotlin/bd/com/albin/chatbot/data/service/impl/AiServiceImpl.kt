@@ -8,11 +8,10 @@ import com.google.firebase.perf.metrics.AddTrace
 import javax.inject.Inject
 
 class AiServiceImpl @Inject constructor(
-    private val geminiPro: GenerativeModel, private val geminiProVision: GenerativeModel
-) : AiService {
+    private val geminiFlash: GenerativeModel) : AiService {
     @AddTrace(name = "generateContent", enabled = true)
     override suspend fun generateContent(prompt: String): String? {
-        val response = geminiPro.generateContent(prompt)
+        val response = geminiFlash.generateContent(prompt)
         return response.text
     }
 
@@ -25,7 +24,7 @@ class AiServiceImpl @Inject constructor(
             }
             text(prompt)
         }
-        val response = geminiProVision.generateContent(inputContent)
+        val response = geminiFlash.generateContent(inputContent)
         return response.text
     }
 }

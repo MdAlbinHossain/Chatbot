@@ -16,9 +16,7 @@ object AppModule {
     @Singleton
     @Provides
     fun providesGenerativeContentRepository(): AiService {
-        val geminiPro = GenerativeModel(modelName = "gemini-pro", apiKey = BuildConfig.apiKey)
-        val geminiProVision =
-            GenerativeModel(modelName = "gemini-pro-vision", apiKey = BuildConfig.apiKey)
-        return AiServiceImpl(geminiPro = geminiPro, geminiProVision = geminiProVision)
+        val geminiPro = GenerativeModel(modelName = "gemini-1.5-flash-latest", apiKey = BuildConfig.apiKey)
+        return AiServiceImpl(geminiFlash = geminiPro)
     }
 }

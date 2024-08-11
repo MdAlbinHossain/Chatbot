@@ -26,7 +26,7 @@ class ChatViewModel @Inject constructor(
     private val repository: AiService,
     logService: LogService,
     private val storageService: StorageService,
-    private val accountService: AccountService,
+    accountService: AccountService,
 ) : ChatbotViewModel(logService) {
 
     val userState:StateFlow<SettingsUiState> = accountService.currentUser.map {

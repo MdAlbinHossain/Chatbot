@@ -22,7 +22,7 @@ object FirebaseModule {
 
     @Provides
     @Singleton
-    fun firestore(): FirebaseFirestore = Firebase.firestore
+    fun firestore(): FirebaseFirestore = Firebase.firestore("chatbot")
 
     @Provides
     @Singleton
