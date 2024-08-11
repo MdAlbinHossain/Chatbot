@@ -1,6 +1,3 @@
-import org.jetbrains.kotlin.konan.properties.Properties
-import java.io.FileInputStream
-
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -10,6 +7,7 @@ plugins {
     alias(libs.plugins.gms)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.firebase.perf)
+    alias(libs.plugins.googleAndroidLibrariesMapsplatformSecretsGradlePlugin)
 }
 
 android {
@@ -28,12 +26,12 @@ android {
             useSupportLibrary = true
         }
 
-        val keystorePropertiesFile = rootProject.file("local.properties")
-        val keystoreProperties = Properties()
-        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-
-        buildConfigField("String", "apiKey", keystoreProperties.getProperty("apiKey", ""))
-        buildConfigField("String", "webClientId", keystoreProperties.getProperty("webClientId", ""))
+//        val keystorePropertiesFile = rootProject.file("local.properties")
+//        val keystoreProperties = Properties()
+//        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+//
+//        buildConfigField("String", "apiKey", keystoreProperties.getProperty("apiKey", ""))
+//        buildConfigField("String", "webClientId", keystoreProperties.getProperty("webClientId", ""))
     }
 
     buildTypes {
@@ -42,6 +40,7 @@ android {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.named("debug").get()
         }
     }
     compileOptions {
@@ -60,6 +59,21 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "secrets.properties"
+
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+//    defaultPropertiesFileName = "local.defaults.properties"
+
+    // Configure which keys should be ignored by the plugin by providing regular expressions.
+    // "sdk.dir" is ignored by default.
+    ignoreList.add("keyToIgnore") // Ignore the key "keyToIgnore"
+    ignoreList.add("sdk.*")       // Ignore all keys matching the regexp "sdk.*"
 }
 
 //composeCompiler {
